@@ -6,7 +6,7 @@
 # @deviceEdgeOffset: number of pixels between the right edge of the device and the button (coder is discouraged from specifying x)
 # @y: number of pixels from the top of the device
 
-class DeviceRotator extends Layer
+class exports.DeviceRotator extends Layer
 	constructor: (@options = {}) ->
 		_.defaults @options,
 			image: "https://i.imgur.com/jPtLs8E.png"
