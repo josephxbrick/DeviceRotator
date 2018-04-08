@@ -1,5 +1,5 @@
 # DeviceRotator
-A Framer module that adds a rotation button to a phone/tablet when said is displayed in a desktop browser or in Framer Studio (but not on an actual device). This allows your audience to see how the prototype behaves when rotated without viewing it on an actual tablet/phone.
+A Framer module that adds a rotation button to the Framer phone/tablet display when the prototype is displayed in a desktop browser or in Framer Studio (but not when displayed on an actual device). This allows your audience to see how the prototype behaves when rotated without viewing it on an actual tablet/phone. Note that the DeviceRotator won't be visible for watches, PCs, or TVs.
 
 Framer sample: [sample.framer](https://framer.cloud/CQOqv)
 
