@@ -1,0 +1,8 @@
+{
+	"name": "DeviceRotator",
+	"description": "Module that adds a rotate button to the Framer device (e.g. iPhone 8) displayed in a desktop browser or in Framer Studio.",
+	"author": "Joseph Brick",
+	"example": "example.coffee",
+	"require": "{DeviceRotator} = require 'devicerotator'",
+	"install": "devicerotator.coffee"
+}
