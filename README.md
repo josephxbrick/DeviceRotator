@@ -1,13 +1,13 @@
 # DeviceRotator
-A Framer module that adds a rotation button to a phone/tablet when said is displayed in a desktop browser or in Framer Studio (but not on device)
+A Framer module that adds a rotation button to a phone/tablet when said is displayed in a desktop browser or in Framer Studio (but not on an actual device). This allows your audience to see how the prototype behaves when rotated without viewing it on an actual tablet/phone.
 
 Framer sample: [sample.framer](https://framer.cloud/CQOqv)
 
-<img src="/readme_images/rotate_device.gif" width="600">
+<img src="/readme_images/rotate_device.gif" width="400">
 
 ## Getting Started
 
-If you have Modules installed, or want to use Modules to add this module to you project, click the badge below.
+If you have Modules installed, or want to install Modules to add this module to you project, click the badge below.
 
 <a href='https://open.framermodules.com/DeviceRotator'>
     <img alt='Install with Framer Modules'
@@ -42,12 +42,13 @@ deviceRotator = new DeviceRotator
  ```
 ### Forgoing the image
 
-Instead of using an image (the stock one or your own), you can add a layer (or a targeted frame from Design mode) as a child of the instance.
+Instead of using an image (the stock one, or your own) in the instance, you can add a layer or a targeted frame from Design mode as a child of the instance. Be aware, however, that vector paths (that aren't part of a stock icon) cannot be resized as of this writing, so they won't work for your image.
 
 ```
 # create instance, which is automatically added to the current device
 deviceRotator = new DeviceRotator
 	image: "" # get rid of default image
+	size: 110
 
 # add iconDesign (here a frame from Design mode) to instance
 deviceRotator.addChild iconDesign
