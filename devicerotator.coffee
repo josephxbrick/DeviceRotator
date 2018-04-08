@@ -9,19 +9,20 @@
 class DeviceRotator extends Layer
 	constructor: (@options = {}) ->
 		_.defaults @options,
-			rotationImage: "https://i.imgur.com/jPtLs8E.png"
+			image: "https://i.imgur.com/jPtLs8E.png"
 			deviceEdgeOffset: 0
 			y: 0 # set to zero to see if coder specifies a non-zero y
 			size: 0  # set to zero to see if coder specifies a size
 			backgroundColor: ""
 		super @options
-
+		
 		# get reference to the "phone" layer, become its child, and match its context
 		@deviceLayer = Framer.Device.phone
 		@parent = @deviceLayer
 		@._context = @deviceLayer.context
 		
 		# Now that we're in the same context as @deviceLayer, it's safe to do some sizing/layout.
+		
 		size = @size # grab constructed size
 		
 		if size.width is 0 or size.height is 0 # the coder did not pass in any sizing info
@@ -52,13 +53,18 @@ class DeviceRotator extends Layer
 				Framer.Device.rotateLeft()
 			else
 				Framer.Device.rotateRight()
-				
-	@define "rotationImage",
-		get: -> @image
-		set: (image) -> 
-			@options.rotationImage = image
-			@image = image
-		
+
+		# make sure any child added to instance gets proper context and has its size/point properties reset in the context
+		@on "change:children", ->
+			for child in @children
+				size = child.size
+				point = child.point
+				child.size = 0
+				child.point = 0
+				child._context = @context
+				child.size = size
+				child.point = point
+
 	@define "deviceEdgeOffset",
 		get: -> @options.deviceEdgeOffset
 		set: (offset) -> 
