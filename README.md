@@ -3,7 +3,7 @@ A Framer module that adds a rotation button to a phone/tablet when said is displ
 
 Framer sample: [sample.framer](https://framer.cloud/CQOqv)
 
-<img src="/readme_images/rotate_device.gif" width="200">
+<img src="/readme_images/rotate_device.gif" width="600">
 
 ## Getting Started
 
