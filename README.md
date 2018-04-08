@@ -14,9 +14,9 @@ If you have Modules installed, or want to install Modules to add this module to 
     src='https://www.framermodules.com/assets/badge@2x.png' width='160' height='40' />
 </a>
 
-Otherwise, download devicerotator.coffee an place it in the `/modules` folder of your project.
+Note that you can hit Ctrl+C in Modules (when DeviceRotator is the active module) to copy a code example that you can then paste into your file. 
 
-In your coffeescript file, include the following (again, if not using Modules to install).
+If you are not using Modules, download `devicerotator.coffee`, place it in the `/modules` folder of your project, and in your coffeescript file, include the following:
 
 `{DeviceRotator} = require "devicerotator"`
 
