@@ -1,152 +1,75 @@
-class DefaultDot extends Layer
-	constructor: (options={}) ->
-		_.defaults options,
-			size: 13
-			borderRadius: "50%"
-			borderColor: "rgba(255,255,255,0.9)"
-			backgroundColor:"rgba(0, 0, 0, 0.05)"
-			borderWidth: 1.1
-		super options
+# This class's instance is a rotate button that is added to the current phone/tablet layer shown when a prototype is displayed in a desktop web browser or in Framer Studio itself (but not when viewed on a phone or tablet). The image is customizable and flips itself appropriately when the device rotates. 
+#
+# The default orientation of the provided bitmap should be designed for the portrait orientation. The default size of the instance designed to work well with any phone/tablet that Framer displays, but the coder can customize this size (or scale the button)
+#
+# @rotationImage: the image that is used in the button
+# @deviceEdgeOffset: number of pixels between the right edge of the device and the button (coder is discouraged from specifying x)
+# @y: number of pixels from the top of the device
 
-class exports.Paginator extends Layer
-	constructor: (@options={}) ->
+class exports.DeviceRotator extends Layer
+	constructor: (@options = {}) ->
 		_.defaults @options,
-			pageComponent: undefined
-			side: "bottom"
-			sideOffset: 10
-			dotSize: 13
-			dotSpacing: 6
-			dotDefaultProps: backgroundColor: "rgba(0, 0, 0, 0.15)", borderColor: "rgba(255,255,255,0.95)"
-			dotSelectedProps: backgroundColor: "rgba(255,255,255,0.95)", borderColor: "rgba(0,0,0,0.35)"
-			animationOptions: time: 0.3, curve: Bezier.ease
+			image: "https://i.imgur.com/jPtLs8E.png"
+			deviceEdgeOffset: 0
+			y: 0 # set to zero to see if coder specifies a non-zero y
+			size: 0  # set to zero to see if coder specifies a size
 			backgroundColor: ""
-			interactive: false
 		super @options
-		if not @pageComponent
-			throw new Error "You must supply Paginator with a PageComponent"
-		# for positioning to work properly, Paginator must be on same layer as is PageComponent
-		@parent = @pageComponent.parent
-		if @side not in ["top", "bottom", "left", "right"]
-			throw new Error "What side are you on?"
-
-		@pageComponent.on "change:currentPage", (currentPage, target) =>
-			@_selectDot target.horizontalPageIndex(currentPage)
-		@pageComponent.content.on "change:children", =>
-			@_layout()
-		@pageComponent.on "change:size", =>
-			@_setPosition()
-		@pageComponent.on "change:point", =>
-			@_setPosition()
-
-		@_layout()
-
-	_createDots: ->
-		numDots = @pageComponent.content.children.length
-		for i in [0...Math.max(numDots, @children.length)]
-			if i >= numDots
-				# Too many dots from prevous execution of _createDots().
-				# (A page has been removed from the page component.)
-				destroyMe = @children[i]
-				destroyMe.parent = null
-				destroyMe.destroy()
-			if i < @children.length and i < numDots
-				# Reuse existing dot from previous execution _createDots()
-				# due to @pageComponent event "change:children"
-				dot = @children[i]
-			else if i < numDots
-				# make new dot
-				dot = new DefaultDot
-				dot.props = @dotDefaultProps
-			if i < numDots
-				dot.size = @dotSize
-				dot.parent = @
-				if @side in ["top", "bottom"]
-					dot.x = i * (dot.width + @dotSpacing)
-					dot.y = 0
-				else
-					dot.x = 0
-					dot.y = i * (dot.height + @dotSpacing)
-				dot.states =
-					default: @dotDefaultProps
-					selected: @dotSelectedProps
-				if @interactive is true
-					dot.onTap (event, target) =>
-						@pageComponent.snapToPage @pageComponent.content.children[_.indexOf(@children, target)]
-						@emit "dotTapped", target, _.indexOf(@children, target)
-		if @side in ["top", "bottom"]
-			@width = numDots * (dot.width + @dotSpacing) - @dotSpacing
-			@height = dot.height
-		else
-			@width = dot.width
-			@height = numDots * (dot.height + @dotSpacing) - @dotSpacing
-
-	_selectDot: (dotIndex) ->
-		for child, i in @children
-			if i is dotIndex
-				child.animate "selected",
-					@animationOptions
-			else
-				child.animate "default",
-					@animationOptions
-
-	_setPosition: ->
-		if @side is "bottom"
-			@x = @pageComponent.x + @pageComponent.width/2 - @.width/2
-			@y = @pageComponent.maxY - @height - @sideOffset
-		else if @side is "top"
-			@x = @pageComponent.x + @pageComponent.width/2 - @.width/2
-			@y = @pageComponent.y + @sideOffset
-		else if @side is "left"
-			@x = @pageComponent.x + @sideOffset
-			@y = @pageComponent.y + @pageComponent.height/2 - @.height/2
-		else if @side is "right"
-			@x = @pageComponent.maxX - @width - @sideOffset
-			@y = @pageComponent.y + @pageComponent.height/2 - @.height/2
-
-	_layout: ->
-		@_createDots()
-		@_selectDot _.indexOf @pageComponent.content.children, @pageComponent.currentPage
-		@_setPosition()
-
-	@define "pageComponent",
-		get: -> @options.pageComponent
 		
-	@define "side",
-		get: -> @options.side
-		set: (value) ->
-			@options.side = value
-			# don't call @_layout() upon @side being set in constructor
-			if @__framerInstanceInfo? # undefined until instance is created
-				@_layout()
-	@define "sideOffset",
-		get: -> @options.sideOffset
-		set: (value) ->
-			@options.sideOffset = value
+		# get reference to the "phone" layer, become its child, and match its context
+		@deviceLayer = Framer.Device.phone
+		@parent = @deviceLayer
+		@._context = @deviceLayer.context
+		
+		# Now that we're in the same context as @deviceLayer, it's safe to do some sizing/layout.
+		
+		size = @size # grab constructed size
+		
+		if size.width is 0 or size.height is 0 # the coder did not pass in any sizing info
+			@size = @deviceLayer.width * 0.045 * @deviceLayer.height/@deviceLayer.width # our default size
+		else
+			@size = 0  # zero-out size to force registration of resize (in our new context) in line below
+			@size = size # coder-specified size.
+			
+		@x = @deviceLayer.width + @deviceEdgeOffset
+		
+		if @options.y isnt 0 # coder provided a y value
+			@y = 0 # zero-out y for same reason as above.
+			@y = @options.y
+			
+		# flip self properly if instantiated while device's parent is in landscape (rotationZ is -90)
+		@rotationY = @deviceLayer.parent.rotationZ * 2
+		
+		# show ourself only when appropriate
+		@visible = Framer.Device._device.deviceType in ["phone","tablet"] and not Utils.isMobile()
+
+		# flip ourself the other way as Device.hands layer (parent of @deviceLayer) rotates 90 degrees
+		@deviceLayer.parent.on "change:rotationZ", (newRotation) =>
+			@rotationY = newRotation * 2
+		
+		# rotate device appropriately when clicked
+		@onClick ->
+			if Framer.Device.orientation is 0
+				Framer.Device.rotateLeft()
+			else
+				Framer.Device.rotateRight()
+
+		# make sure any child added to instance gets proper context and has its size/point properties reset in the context
+		@on "change:children", ->
+			for child in @children
+				size = child.size
+				point = child.point
+				child.size = 0
+				child.point = 0
+				child._context = @context
+				child.size = size
+				child.point = point
+
+	@define "deviceEdgeOffset",
+		get: -> @options.deviceEdgeOffset
+		set: (offset) -> 
+			# Check whether we're an instance yet; we don't want the constructor to trigger
+			# this setter because the proper context isn't set yet.
 			if @__framerInstanceInfo? 
-				@_layout()
-	@define "dotSize",
-		get: -> @options.dotSize
-		set: (value) ->
-			@options.dotSize = value
-			if @__framerInstanceInfo? 
-				@_layout()
-	@define "dotSpacing",
-		get: -> @options.dotSpacing
-		set: (value) ->
-			@options.dotSpacing = value
-			if @__framerInstanceInfo? 
-				@_layout()
-	@define "dotDefaultProps",
-		get: -> @options.dotDefaultProps
-		set: (value) ->
-			@options.dotDefaultProps = value
-			if @__framerInstanceInfo? 
-				@_layout()
-	@define "dotSelectedProps",
-		get: -> @options.dotSelectedProps
-		set: (value) ->
-			@options.dotSelectedProps = value
-			if @__framerInstanceInfo? 
-				@_layout()
-	@define "interactive",
-		get: -> @options.interactive
+				@options.deviceEdgeOffset = offset
+				@x = @deviceLayer.width + @deviceEdgeOffset
